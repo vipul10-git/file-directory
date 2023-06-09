@@ -1,3 +1,10 @@
+.root{
+  margin:3rem;
+  border:1px solid black;
+  padding:0.5rem;
+  width: 18rem;
+  border-radius: 4px;
+}
 .flex {
   display: flex;
 }
@@ -6,8 +13,8 @@
 }
 .rootDiv {
   display: flex;
+  padding-left: 8px;
   gap: 0.5rem;
-  width: 30%;
   justify-content: space-between;
   align-items: center;
 }
@@ -18,10 +25,8 @@
 .mR8{
   margin-right:0.25rem
 }
-.m48{
-  margin:3rem;
-}
 .hover{
   background-color:rgb(237, 237, 237);
-  border-radius:4px
+  border-radius:4px;
+  padding:2px
 }

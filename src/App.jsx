@@ -1,13 +1,13 @@
-/* eslint-disable react/prop-types */
 import { useState, useRef, Children } from "react";
-import { sampleData } from "./helper";
-import FolderOpen from "./Icons/FolderOpen";
-import FolderClose from "./Icons/FolderClose";
-import File from "./Icons/File";
+import { sampleData, splitPath } from "./helper";
 import FileAdd from "./Icons/FileAdd";
 import FolderAdd from "./Icons/FolderAdd";
 import Delete from "./Icons/Delete";
-import './App.css';
+import Close from "./Icons/Close";
+import "./App.css";
+import FolderOpen from "./Icons/FolderOpen";
+import FolderClose from "./Icons/FolderClose";
+import File from "./Icons/File";
 
 const iconMapper = (type) => {
   switch (type) {
@@ -21,32 +21,29 @@ const iconMapper = (type) => {
       return <FolderClose />;
   }
 };
-const splitPath = (path) => path.split("/");
 
 function App() {
   const [activeItemId, setActiveItemId] = useState({
     path: "",
     directory: false,
   });
-  const [folderData, setFolderData] = useState(sampleData);
-  const [renameId, setRenameId] = useState("");
-  const [renameText, setRenameText] = useState("");
+  const [rename, setRename] = useState({ id: "", text: "" });
   const [clickedPath, setClickedPath] = useState("");
+  const [random, setRandom] = useState(new Date().getTime());
   const refPath = useRef();
 
   const handleRename = (path, event) => {
     if (event.key === "Enter") {
-      if (renameText) {
+      if (rename.text) {
         var i = 1;
         const splitPathArr = splitPath(path);
-        let dataToArr = sampleData;
         let findIndex = sampleData.findIndex(
           (id) => id.name === splitPathArr[0]
         );
-        dataToArr[findIndex].children.forEach(function iter(a) {
+        sampleData[findIndex].children.forEach(function iter(a) {
           if (i === splitPathArr.length - 1) {
             if (a.name === splitPathArr[i]) {
-              a.name = renameText;
+              a.name = rename.text;
             }
           } else {
             if (a.name === splitPathArr[i]) {
@@ -55,19 +52,16 @@ function App() {
             }
           }
         });
-        setFolderData(dataToArr);
       }
       event.target.blur();
-      setRenameId("");
-      setRenameText("");
+      setRename({ id: "", text: "" });
     }
   };
 
   const handleDelete = () => {
     var i = 0;
     const splitPathArr = splitPath(activeItemId.path);
-    let dataToArr = sampleData;
-    dataToArr.forEach(function del(a) {
+    sampleData.forEach(function del(a) {
       if (a.name === splitPathArr[i]) {
         i += 1;
         if (i === splitPathArr.length - 1) {
@@ -81,14 +75,13 @@ function App() {
         }
       }
     });
-    setFolderData(dataToArr);
+    setRandom(new Date().getTime());
   };
 
   const handleAddNew = (type) => {
     var i = 0;
     const splitPathArr = splitPath(activeItemId.path);
-    let dataToArr = sampleData;
-    dataToArr.forEach(function del(a) {
+    sampleData.forEach(function del(a) {
       if (a.name === splitPathArr[i]) {
         i += 1;
         if (i === splitPathArr.length) {
@@ -106,33 +99,36 @@ function App() {
         }
       }
     });
-    setFolderData(dataToArr);
+    setRandom(new Date().getTime());
   };
+
+  const handleCloseUpdate = () =>{
+    setRename({ id: "", text: "" });
+  }
 
   const action = (isDirectory, allowDelete) => {
     return (
       <>
-        <div className="mR8">
-          {!allowDelete && (
+        <div className="mR8 verticalCenter" style={{ gap: "0.25rem" }}>
+          {isDirectory && (
+            <>
+              <span onClick={() => handleAddNew("file")} className="pointer">
+                <FileAdd />
+              </span>
+              <span onClick={() => handleAddNew("folder")} className="pointer">
+                <FolderAdd />
+              </span>
+            </>
+          )}
+          {!allowDelete && !rename.id.length && (
             <span onClick={() => handleDelete()} className="pointer">
               <Delete />
             </span>
           )}
-          {isDirectory && (
-            <>
-              <span
-                onClick={() => handleAddNew("file")}
-                className="pointer"
-              >
-                <FileAdd />
-              </span>
-              <span
-                onClick={() => handleAddNew("folder")}
-                className="pointer"
-              >
-                <FolderAdd />
-              </span>
-            </>
+          {!!rename.id.length && (
+            <span onClick={() => handleCloseUpdate()} className="pointer">
+              <Close />
+            </span>
           )}
         </div>
       </>
@@ -153,20 +149,29 @@ function App() {
       return (
         <>
           <div
-            className="rootDiv"
+            className={`rootDiv ${
+              pathArr === activeItemId.path ? "hover" : ""
+            }`}
             onMouseEnter={() =>
-              !renameId.length &&
+              !rename.id.length &&
               setActiveItemId({ path: pathArr, directory: true })
             }
             onMouseLeave={() =>
-              !renameId.length &&
+              !rename.id.length &&
               setActiveItemId({ path: "", directory: false })
             }
           >
             <div
-              className="verticalCenter"
+              className="verticalCenter pointer"
               style={{
                 marginLeft: `${index}rem`,
+              }}
+              onClick={() => {
+                setClickedPath(clickedPath === pathArr ? "" : pathArr);
+                refPath.current = {
+                  ...refPath.current,
+                  [data.name]: !refPath.current?.[data.name],
+                };
               }}
             >
               <div className="mR8">
@@ -178,17 +183,7 @@ function App() {
                     : data.type
                 )}
               </div>
-              <div
-                onClick={() => {
-                  setClickedPath(clickedPath === pathArr ? "" : pathArr);
-                  refPath.current = {
-                    ...refPath.current,
-                    [data.name]: !refPath.current?.[data.name],
-                  };
-                }}
-              >
-                {data.name}
-              </div>
+              <div>{data.name}</div>
             </div>
             {pathArr === activeItemId.path ? (
               action(true, data.noDelete)
@@ -210,25 +205,24 @@ function App() {
     }
     return (
       <div
-      className={`rootDiv ${pathArr === activeItemId.path ? 'hover':''}`}
+        className={`rootDiv ${pathArr === activeItemId.path ? "hover" : ""}`}
         onMouseEnter={() =>
-          !renameId.length &&
+          !rename.id.length &&
           setActiveItemId({ path: pathArr, directory: false })
         }
-        onMouseLeave={() => !renameId.length && setActiveItemId({})}
+        onMouseLeave={() => !rename.id.length && setActiveItemId({})}
       >
         <div
-        className="verticalCenter"
+          className="verticalCenter"
           style={{
             marginLeft: `${index}rem`,
           }}
         >
           <div className="mR8">{iconMapper(data.type)}</div>
-          {renameId !== pathArr ? (
+          {rename.id !== pathArr ? (
             <div
               onDoubleClick={() => {
-                setRenameId(pathArr);
-                setRenameText("");
+                setRename({ id: pathArr, text: "" });
               }}
             >
               {data.name}
@@ -236,8 +230,8 @@ function App() {
           ) : (
             <input
               type="text"
-              value={renameText}
-              onChange={(e) => setRenameText(e.target.value)}
+              value={rename.text}
+              onChange={(e) => setRename({ ...rename, text: e.target.value })}
               onKeyPress={(e) => handleRename(pathArr, e)}
             />
           )}
@@ -248,9 +242,9 @@ function App() {
   };
 
   return (
-    <div className="m48">
+    <div className="root">
       {Children.toArray(
-        folderData.map((item, index) => <>{treeRender(item, index)}</>)
+        sampleData.map((item, index) => <>{treeRender(item, index)}</>)
       )}
     </div>
   );

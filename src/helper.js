@@ -73,3 +73,5 @@ export const sampleData = [
   ],
 }
 ]
+
+export const splitPath = (path) => path.split("/");
