@@ -88,10 +88,10 @@ function App() {
           a.children.push(
             type === "file"
               ? {
-                  name: "new_file.jsx",
+                  name: `new_file${Math.floor(Math.random() *1000) }.jsx`,
                   type: "file",
                 }
-              : { name: "new Folder", type: "directory", children: [] }
+              : { name: `new Folder ${Math.floor(Math.random() *1000)}`, type: "directory", children: [] }
           );
           return;
         } else {
