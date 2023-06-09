@@ -102,9 +102,9 @@ function App() {
     setRandom(new Date().getTime());
   };
 
-  const handleCloseUpdate = () =>{
+  const handleCloseUpdate = () => {
     setRename({ id: "", text: "" });
-  }
+  };
 
   const action = (isDirectory, allowDelete) => {
     return (
@@ -243,10 +243,49 @@ function App() {
 
   return (
     <div className="root">
+    <div className="fileRoot">
       {Children.toArray(
         sampleData.map((item, index) => <>{treeRender(item, index)}</>)
       )}
-    </div>
+      </div>
+      <div>
+      How To Use:
+      <ol>
+        <li>
+        {iconMapper("file")} - file
+        </li>
+        <li>
+        {iconMapper("folderClosed")} - closed folder
+        </li>
+        <li> {iconMapper("folderOpen")} - folder is open</li>
+        <li>
+          Double click on any file to update the name ( close option <Close/> will be appear to cancel the update )
+        </li>
+        <li>
+          Hover file option - <Delete />
+        </li>
+        <li>
+          files can be deleted by clicking- <Delete />
+        </li>
+        <li>
+          Hover folder option - <Delete />,<FileAdd />,<FolderAdd />
+        </li>
+        <li>clicking on any folder will collapse s/ expand the folder</li>
+        <li>
+          folders can be also deleted by clicking - <Delete />
+        </li>
+        <li>
+          new file can be added by clicking - <FileAdd />
+        </li>
+        <li>
+          new folder can be added by clicking - <FolderAdd />
+        </li>
+      </ol>
+        <strong>*** for now we are using dummy file and folder when new items being added</strong>
+        <br/>
+        <strong>*** no validation is being added when file name is being changed</strong>
+      </div>
+      </div>
   );
 }
 
